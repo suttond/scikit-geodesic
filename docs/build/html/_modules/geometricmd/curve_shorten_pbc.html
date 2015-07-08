@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>geometricmd.curve_shorten_pbc &mdash; scikit-geodesic</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-3.3.4/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-3.3.4/css/bootstrap-theme.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.2a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="scikit-geodesic" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          scikit-geodesic</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.2</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../curve_shorten.html">Curve Shorten Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../geometry.html">Geometry Module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+  <h1>Source code for geometricmd.curve_shorten_pbc</h1><div class="highlight"><pre>
+<span class="c"># Load packages which form part of the Python 2.7 core</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="c"># Load packages which are a part of GeometricMD</span>
+<span class="kn">from</span> <span class="nn">geometricmd.animation</span> <span class="kn">import</span> <span class="n">write_xyz_animation</span>
+<span class="kn">from</span> <span class="nn">geometricmd.geometry</span> <span class="kn">import</span> <span class="n">convert_vector_to_atoms</span><span class="p">,</span> <span class="n">convert_atoms_to_vector</span>
+
+<span class="c"># Load additional packages and check if they are installed</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">ase</span>
+    <span class="kn">from</span> <span class="nn">ase.optimize</span> <span class="kn">import</span> <span class="n">BFGS</span>
+    <span class="kn">from</span> <span class="nn">ase.constraints</span> <span class="kn">import</span> <span class="n">StrainFilter</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">print</span> <span class="s">&#39;Atomistic Simulation Environment is not installed. Try to run *pip install python-ase*.&#39;</span>
+    <span class="n">quit</span><span class="p">()</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">print</span> <span class="s">&#39;NumPy is not installed. Try to run *pip install numpy*.&#39;</span>
+    <span class="n">quit</span><span class="p">()</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fmin_l_bfgs_b</span><span class="p">,</span> <span class="n">check_grad</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">print</span> <span class="s">&#39;SciPy is not installed. Try to run *pip install scipy*.&#39;</span>
+    <span class="n">quit</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="length"><a class="viewcode-back" href="../../curve_shorten_pbc.html#geometricmd.curve_shorten_pbc.length">[docs]</a><span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="n">start_cell</span><span class="p">,</span> <span class="n">end_cell</span><span class="p">,</span> <span class="n">number_of_inner_nodes</span><span class="p">,</span> <span class="n">mass_matrix</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span>
+           <span class="n">energy</span><span class="p">,</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1E-12</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This function computes an approximation of the length functional for local geodesics. It also provides the</span>
+<span class="sd">    gradient of this approximation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      x (numpy.array): The positions of the interior curve points.</span>
+<span class="sd">      start_point (numpy.array): The first end point of the curve.</span>
+<span class="sd">      end_point (numpy.array): The last end point of the curve.</span>
+<span class="sd">      number_of_inner_points (int): The number of nodes along the curve, less the end points.</span>
+<span class="sd">      mass_matrix (numpy.array): A diagonal NumPy array containing the masses of the molecular system as computed in the SimulationClient object.</span>
+<span class="sd">      dimension (int): The dimension of the problem. Computed from the atomistic simulation environment.</span>
+<span class="sd">      molecule (ase.atoms): The ASE atoms object corresponding to the molecule being simulated.</span>
+<span class="sd">      energy (float): The total energy of the system.</span>
+<span class="sd">      pressure (float): The pressure of the system.</span>
+<span class="sd">      W (float): The stiffness of the unit cell.</span>
+<span class="sd">      epsilon (optional, float): A small number used where the metric co-efficient is zero or not defined.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      float, numpy.array: The approximate length of the curve and the corresponding gradient.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Convert start_point, x and end_point into an array representing the curve.</span>
+    <span class="n">eff_mass_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">mass_matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">dimension</span><span class="p">,</span> <span class="mi">9</span><span class="p">)))),</span>
+                                 <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">9</span><span class="p">,</span> <span class="n">dimension</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">W</span><span class="p">]</span> <span class="o">*</span> <span class="mi">9</span><span class="p">))))))</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">start_point</span><span class="p">,</span> <span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="n">number_of_inner_nodes</span><span class="o">*</span><span class="mi">9</span><span class="p">],</span> <span class="n">end_point</span><span class="p">,</span> <span class="n">start_cell</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+                   <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="n">number_of_inner_nodes</span><span class="o">*</span><span class="mi">9</span><span class="p">:],</span> <span class="n">end_cell</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span>
+
+    <span class="c"># Initialise the list to contain the metric values.</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">state_number</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">number_of_inner_nodes</span><span class="o">+</span><span class="mi">2</span><span class="p">):</span>
+        <span class="c"># Update the positions in the molecule object</span>
+        <span class="n">cell_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">state_number</span><span class="o">*</span><span class="mi">9</span><span class="o">+</span><span class="n">dimension</span><span class="o">*</span><span class="p">(</span><span class="n">number_of_inner_nodes</span><span class="o">+</span><span class="mi">2</span><span class="p">):(</span><span class="n">state_number</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">9</span><span class="o">+</span><span class="n">dimension</span><span class="o">*</span><span class="p">(</span><span class="n">number_of_inner_nodes</span><span class="o">+</span><span class="mi">2</span><span class="p">)],</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">cell_volume</span> <span class="o">=</span> <span class="n">pressure</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">cell_matrix</span><span class="p">))</span>
+
+        <span class="n">molecule</span><span class="o">.</span><span class="n">set_positions</span><span class="p">(</span><span class="n">convert_vector_to_atoms</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">state_number</span><span class="o">*</span><span class="n">dimension</span><span class="p">:(</span><span class="n">state_number</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">dimension</span><span class="p">]))</span>
+        <span class="n">molecule</span><span class="o">.</span><span class="n">set_cell</span><span class="p">(</span><span class="n">cell_matrix</span><span class="p">)</span>
+
+        <span class="n">val</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()</span> <span class="o">+</span> <span class="n">cell_volume</span>
+
+        <span class="c"># Compute the Maupertuis metric co-efficient for this configuration</span>
+        <span class="k">if</span> <span class="n">energy</span> <span class="o">&lt;=</span> <span class="n">val</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&#39;Boundary of Configuration Space Reached: Replacing with Small Number.&#39;</span><span class="p">)</span>
+            <span class="n">metric_value</span> <span class="o">=</span> <span class="n">epsilon</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">metric_value</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">energy</span> <span class="o">-</span> <span class="n">val</span><span class="p">))</span>
+
+        <span class="c"># Compute gradient of metric co-efficient</span>
+        <span class="n">metric_gradient</span> <span class="o">=</span> <span class="o">-</span><span class="n">convert_atoms_to_vector</span><span class="p">(</span><span class="n">molecule</span><span class="o">.</span><span class="n">get_forces</span><span class="p">())</span> <span class="o">/</span> <span class="n">metric_value</span>
+
+        <span class="n">grad_volume</span> <span class="o">=</span> <span class="o">-</span><span class="n">cell_volume</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">cell_matrix</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="o">/</span> <span class="n">metric_value</span>
+
+        <span class="c"># Insert this value and the approximate value for the gradient of the Maupertuis metric into the metric list</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">metric_value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">metric_gradient</span><span class="p">,</span> <span class="n">grad_volume</span><span class="p">))])</span>
+
+    <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">x</span><span class="p">[(</span><span class="n">i</span><span class="p">)</span><span class="o">*</span><span class="n">dimension</span><span class="p">:(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">dimension</span><span class="p">],</span>
+                          <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">9</span><span class="o">+</span><span class="n">dimension</span><span class="o">*</span><span class="p">(</span><span class="n">number_of_inner_nodes</span><span class="o">+</span><span class="mi">2</span><span class="p">):(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">9</span><span class="o">+</span><span class="n">dimension</span><span class="o">*</span><span class="p">(</span><span class="n">number_of_inner_nodes</span><span class="o">+</span><span class="mi">2</span><span class="p">)]))</span>
+
+    <span class="k">def</span> <span class="nf">mass_norm</span><span class="p">(</span><span class="n">vector</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">eff_mass_matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">vector</span><span class="p">)))</span>
+
+    <span class="c"># Initialise the length variable</span>
+    <span class="n">n_1</span> <span class="o">=</span> <span class="n">mass_norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">state</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">state</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+    <span class="n">t_1</span> <span class="o">=</span> <span class="n">eff_mass_matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">state</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">state</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span> <span class="o">/</span> <span class="n">n_1</span>
+    <span class="n">m_1</span> <span class="o">=</span> <span class="n">metric</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">metric</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="n">n_1</span> <span class="o">*</span> <span class="n">m_1</span>
+
+
+    <span class="c"># Initialize the list to store the gradient approximation</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">number_of_inner_nodes</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">number_of_inner_nodes</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>
+
+    <span class="c"># For all of the interior nodes...</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">number_of_inner_nodes</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+
+        <span class="c"># Pre-compute repeated quantities in the gradient expression</span>
+        <span class="n">n_2</span> <span class="o">=</span> <span class="n">mass_norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">state</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">state</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+        <span class="n">t_2</span> <span class="o">=</span> <span class="n">eff_mass_matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">state</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">state</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span> <span class="o">/</span> <span class="n">n_2</span>
+        <span class="n">m_2</span> <span class="o">=</span> <span class="n">metric</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">metric</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c"># Compute length contribution</span>
+        <span class="n">l</span> <span class="o">+=</span> <span class="n">n_2</span> <span class="o">*</span> <span class="n">m_2</span>
+
+        <span class="c"># Compute the gradient component</span>
+        <span class="n">g_component</span> <span class="o">=</span> <span class="n">metric</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_2</span> <span class="o">+</span> <span class="n">n_1</span><span class="p">)</span> <span class="o">-</span> <span class="n">m_2</span> <span class="o">*</span> <span class="n">t_2</span> <span class="o">+</span> <span class="n">m_1</span> <span class="o">*</span> <span class="n">t_1</span>
+
+        <span class="c"># Append this component into the gradient list</span>
+
+        <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">g_component</span><span class="p">[:</span><span class="o">-</span><span class="mi">9</span><span class="p">]</span>
+        <span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">g_component</span><span class="p">[</span><span class="o">-</span><span class="mi">9</span><span class="p">:]</span>
+
+        <span class="n">n_1</span> <span class="o">=</span> <span class="n">n_2</span>
+        <span class="n">t_1</span> <span class="o">=</span> <span class="n">t_2</span>
+        <span class="n">m_1</span> <span class="o">=</span> <span class="n">m_2</span>
+
+    <span class="c"># Return the values of length and gradient - the gradient is flattened for dimensional consistency</span>
+
+    <span class="k">return</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">l</span><span class="p">,</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">g</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">c</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span>
+
+</div>
+<div class="viewcode-block" id="find_geodesic_midpoint"><a class="viewcode-back" href="../../curve_shorten_pbc.html#geometricmd.curve_shorten_pbc.find_geodesic_midpoint">[docs]</a><span class="k">def</span> <span class="nf">find_geodesic_midpoint</span><span class="p">(</span><span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="n">start_cell</span><span class="p">,</span> <span class="n">end_cell</span><span class="p">,</span> <span class="n">number_of_inner_points</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span>
+                           <span class="n">mass_matrix</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">node_number</span><span class="p">,</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">W</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This function computes the local geodesic curve joining start_point to end_point using the L-BFGS method.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      start_point (numpy.array): The first end point of the curve.</span>
+<span class="sd">      end_point (numpy.array): The last end point of the curve.</span>
+<span class="sd">      number_of_inner_points (int): The number of nodes along the curve, less the end points.</span>
+<span class="sd">      dimension (int): The dimension of the problem. Computed from the atomistic simulation environment.</span>
+<span class="sd">      mass_matrix (numpy.array): A diagonal NumPy array containing the masses of the molecular system as computed in the SimulationClient object.</span>
+<span class="sd">      molecule (ase.atoms): The ASE atoms object corresponding to the molecule being simulated.</span>
+<span class="sd">      energy (float): The total energy of the system.</span>
+<span class="sd">      node_number (int): The node number for which we are calculating a new position for.</span>
+<span class="sd">      pressure (float): The pressure of the system.</span>
+<span class="sd">      W (float): The stiffness of the unit cell.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      numpy.array: The midpoint along the approximate local geodesic curve.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Compute the tangent vector - the rescaled vector of the line joining the start and end points</span>
+    <span class="n">tangent</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">number_of_inner_points</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">end_point</span><span class="p">,</span> <span class="n">start_point</span><span class="p">)</span>
+
+    <span class="c"># Compute the initial curve, the straight line joining the start point to the end point</span>
+    <span class="n">start_curve</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">start_point</span><span class="p">,</span> <span class="n">tangent</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">number_of_inner_points</span><span class="o">-</span><span class="mi">1</span><span class="p">)):</span>
+        <span class="n">start_curve</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">start_curve</span><span class="p">,</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">start_curve</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">tangent</span><span class="p">)]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">start_curve</span> <span class="o">=</span> <span class="n">start_curve</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="c"># Compute the cell tangent vector - the rescaled vector of the line joining the start and end points</span>
+    <span class="n">cell_tangent</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">number_of_inner_points</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">end_cell</span><span class="p">,</span> <span class="n">start_cell</span><span class="p">)</span>
+
+    <span class="c"># Compute the cells, the straight line joining the start point to the end point</span>
+    <span class="n">cells</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">start_cell</span><span class="p">,</span> <span class="n">cell_tangent</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">number_of_inner_points</span><span class="o">-</span><span class="mi">1</span><span class="p">)):</span>
+        <span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">cell_tangent</span><span class="p">))</span>
+    <span class="n">cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">start_curve</span><span class="p">,</span> <span class="n">cells</span><span class="p">))</span>
+
+    <span class="c"># Perform the L-BFGS method on the length functional</span>
+    <span class="n">geodesic</span><span class="p">,</span> <span class="n">f_min</span><span class="p">,</span> <span class="n">detail</span> <span class="o">=</span> <span class="n">fmin_l_bfgs_b</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="n">start_cell</span><span class="p">,</span> <span class="n">end_cell</span><span class="p">,</span>
+                                                           <span class="n">number_of_inner_points</span><span class="p">,</span> <span class="n">mass_matrix</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span>
+                                                           <span class="n">molecule</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">W</span><span class="p">))</span>
+
+    <span class="n">flat_mid_cell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">geodesic</span><span class="p">[</span><span class="o">-</span><span class="n">number_of_inner_points</span><span class="o">*</span><span class="mi">9</span><span class="p">:],</span>
+                               <span class="p">(</span><span class="n">number_of_inner_points</span><span class="p">,</span> <span class="mi">9</span><span class="p">))[(</span><span class="n">number_of_inner_points</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span>
+
+    <span class="c"># Return the node number and new midpoint</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">node_number</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">geodesic</span><span class="p">[:</span><span class="o">-</span><span class="n">number_of_inner_points</span><span class="o">*</span><span class="mi">9</span><span class="p">],</span>
+                                             <span class="p">(</span><span class="n">number_of_inner_points</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))[(</span><span class="n">number_of_inner_points</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">flat_mid_cell</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))]</span>
+
+</div>
+<div class="viewcode-block" id="compute_trajectory"><a class="viewcode-back" href="../../curve_shorten_pbc.html#geometricmd.curve_shorten_pbc.compute_trajectory">[docs]</a><span class="k">def</span> <span class="nf">compute_trajectory</span><span class="p">(</span><span class="n">trajectory</span><span class="p">,</span> <span class="n">local_num_nodes</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">pressure</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">tol</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This function creates a new task to compute a geodesic midpoint and submits it to the worker pool.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      trajectory (curve): A GeometricMD curve object describing the initial trajectory between start and end configurations.</span>
+<span class="sd">      local_num_nodes (int): The number of points to use when computing the local geodesics.</span>
+<span class="sd">      energy (float): The total energy of the system.</span>
+<span class="sd">      pressure (float): The pressure of the system.</span>
+<span class="sd">      W (float): The stiffness of the unit cell.</span>
+<span class="sd">      tol (float): The tolerance by which if the total curve movement falls below this number then the Birkhoff method stops.</span>
+<span class="sd">      filename (str): The filename for the output files from the simulation.</span>
+<span class="sd">      configuration (dict): A dictionary containing additional parameters for the simulation. Accepts: &#39;processes&#39; - the number of processors to use (defaults to 1), &#39;write_to_log&#39; - a boolean value, if true writes to a logfile, otherwise prints to console (defaults to False) and &#39;save_every&#39; - an integer indicating the program will save after every &#39;save_every&#39;th iteration of the Birkhoff algorithm (defaults to 1).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Extract a copy of the ASE atoms object to determine forces</span>
+    <span class="n">molecule</span> <span class="o">=</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s">&#39;molecule&#39;</span><span class="p">]</span>
+
+    <span class="c"># Determine the dimension of the Hamiltonian system</span>
+    <span class="n">dimension</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trajectory</span><span class="o">.</span><span class="n">get_points</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c"># Compute the mass matrix for the Hamiltonian system</span>
+    <span class="n">mass_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">molecule</span><span class="o">.</span><span class="n">get_masses</span><span class="p">(),)</span> <span class="o">*</span> <span class="p">(</span><span class="n">dimension</span> <span class="o">/</span>
+                                                                <span class="nb">len</span><span class="p">(</span><span class="n">molecule</span><span class="o">.</span><span class="n">get_masses</span><span class="p">())))</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+
+    <span class="c"># Set counter for saving</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c"># Attempt to extract additional parameters, otherwise set default behaviours</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">processes</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s">&#39;processes&#39;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">processes</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">write_to_log</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s">&#39;write_to_log&#39;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">write_to_log</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">save_frequency</span> <span class="o">=</span> <span class="n">configuration</span><span class="p">[</span><span class="s">&#39;save_every&#39;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="n">save_frequency</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c"># Initialise logging based on whether the user indicated whether they would like it printing to stout or not.</span>
+    <span class="k">if</span> <span class="n">write_to_log</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(asctime)s</span><span class="s"> </span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&#39;out/&#39;</span><span class="o">+</span><span class="n">filename</span><span class="o">+</span><span class="s">&#39;.log&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(asctime)s</span><span class="s"> </span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+    <span class="c"># If the user intends to use the algorithm on one core then...</span>
+    <span class="k">if</span> <span class="n">processes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+
+        <span class="c"># Main loop of the Birkhoff algorithm, continues until curve.movement &lt; tol then breaks out</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+
+            <span class="c"># Iterating over each node in the trajectory find a new position based on the geodesic midpoint</span>
+            <span class="c"># joining it&#39;s neighbours</span>
+            <span class="k">for</span> <span class="n">node_number</span> <span class="ow">in</span> <span class="n">trajectory</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">find_geodesic_midpoint</span><span class="p">(</span><span class="n">trajectory</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">node_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                                                                                 <span class="n">trajectory</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">node_number</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                                                                                 <span class="n">trajectory</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="n">node_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                                                                                 <span class="n">trajectory</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="n">node_number</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                                                                                 <span class="n">local_num_nodes</span><span class="p">,</span>
+                                                                                 <span class="n">dimension</span><span class="p">,</span>
+                                                                                 <span class="n">mass_matrix</span><span class="p">,</span>
+                                                                                 <span class="n">molecule</span><span class="p">,</span>
+                                                                                 <span class="n">energy</span><span class="p">,</span>
+                                                                                 <span class="n">node_number</span><span class="p">,</span>
+                                                                                 <span class="n">pressure</span><span class="p">,</span>
+                                                                                 <span class="n">W</span><span class="p">)</span>
+                <span class="n">trajectory</span><span class="o">.</span><span class="n">set_node_position</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+            <span class="c"># Once all the nodes in the curve have been tested, print the node movement</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Curve Movement: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">trajectory</span><span class="o">.</span><span class="n">movement</span><span class="p">))</span>
+
+            <span class="c"># If the required save frequency has passed then have both a pickle of the current curve object and</span>
+            <span class="c"># write out the animation.</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="n">save_frequency</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">trajectory</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s">&#39;.pkl&#39;</span><span class="p">,</span> <span class="s">&quot;wb&quot;</span><span class="p">))</span>
+                <span class="n">write_xyz_animation</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s">&#39;.pkl&#39;</span><span class="p">,</span><span class="n">filename</span><span class="o">+</span><span class="s">&#39;.xyz&#39;</span><span class="p">)</span>
+
+            <span class="c"># If the movement of the curve is below the tol threshold then exit the main loop</span>
+            <span class="k">if</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">movement</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="c"># Indicate that the next iteration is to be completed</span>
+            <span class="n">trajectory</span><span class="o">.</span><span class="n">set_node_movable</span><span class="p">()</span>
+
+    <span class="c"># Otherwise the user has indicated they would like to perform a parallel computation...</span>
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="c"># Create a callback function that updates the node position once it is calculated</span>
+        <span class="k">def</span> <span class="nf">update_curve</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+            <span class="n">trajectory</span><span class="o">.</span><span class="n">set_node_position</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="c"># Create a pool of worker processes to work in parallel</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="p">(</span><span class="n">processes</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="c"># Main loop of the Birkhoff algorithm, continues until curve.movement &lt; tol then breaks out</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+
+            <span class="c"># Iterating over each node in the trajectory create a task to find a new position based on the</span>
+            <span class="c"># geodesic midpoint joining it&#39;s neighbours. Add this task to the pool queue.</span>
+            <span class="k">for</span> <span class="n">node_number</span> <span class="ow">in</span> <span class="n">trajectory</span><span class="p">:</span>
+                <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">find_geodesic_midpoint</span><span class="p">,</span>
+                         <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">trajectory</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">node_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">node_number</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="n">node_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                                                                                 <span class="n">trajectory</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="n">node_number</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">local_num_nodes</span><span class="p">,</span>
+                               <span class="n">dimension</span><span class="p">,</span> <span class="n">mass_matrix</span><span class="p">,</span> <span class="n">molecule</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">node_number</span><span class="p">,),</span>
+                         <span class="n">callback</span><span class="o">=</span><span class="n">update_curve</span><span class="p">)</span>
+
+            <span class="c"># If all the nodes in the trajectory have been moved...</span>
+            <span class="k">if</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">all_nodes_moved</span><span class="p">():</span>
+
+                <span class="c"># Once all the nodes in the curve have been tested, print the node movement</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Curve Movement: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">trajectory</span><span class="o">.</span><span class="n">movement</span><span class="p">))</span>
+
+                <span class="c"># If the required save frequency has passed then have both a pickle of the current curve object and</span>
+                <span class="c"># write out the animation.</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="n">save_frequency</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">trajectory</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s">&#39;.pkl&#39;</span><span class="p">,</span> <span class="s">&quot;wb&quot;</span><span class="p">))</span>
+                    <span class="n">write_xyz_animation</span><span class="p">(</span><span class="n">filename</span><span class="o">+</span><span class="s">&#39;.pkl&#39;</span><span class="p">,</span><span class="n">filename</span><span class="o">+</span><span class="s">&#39;.xyz&#39;</span><span class="p">)</span>
+
+                <span class="c"># If the movement of the curve is below the tol threshold then exit the main loop</span>
+                <span class="k">if</span> <span class="n">trajectory</span><span class="o">.</span><span class="n">movement</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+                <span class="c"># Indicate that the next iteration is to be completed</span>
+                <span class="n">trajectory</span><span class="o">.</span><span class="n">set_node_movable</span><span class="p">()</span>
+
+        <span class="c"># Once the algorithm has executed close the pool</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2015, Daniel Sutton.<br/>
+      Last updated on Jul 08, 2015.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

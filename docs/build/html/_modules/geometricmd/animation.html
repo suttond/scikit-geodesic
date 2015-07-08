@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>geometricmd.animation &mdash; scikit-geodesic</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-3.3.4/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-3.3.4/css/bootstrap-theme.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.2a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="scikit-geodesic" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          scikit-geodesic</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.2</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../curve_shorten.html">Curve Shorten Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../geometry.html">Geometry Module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+  <h1>Source code for geometricmd.animation</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">write</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">quad</span>
+
+<span class="kn">from</span> <span class="nn">geometricmd.geometry</span> <span class="kn">import</span> <span class="n">convert_vector_to_atoms</span>
+
+
+<span class="k">def</span> <span class="nf">get_times</span><span class="p">(</span><span class="n">curve</span><span class="p">):</span>
+
+    <span class="n">t</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+
+    <span class="n">mass_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">curve</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s">&#39;molecule&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get_masses</span><span class="p">(),)</span>
+                                    <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span>
+                                       <span class="nb">len</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s">&#39;molecule&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get_masses</span><span class="p">())))</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+
+    <span class="n">l</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c"># For all of the nodes, less the end node...</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">integrand</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x_1</span><span class="p">,</span> <span class="n">x_2</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">x_2</span><span class="p">,</span> <span class="n">x_1</span><span class="p">)</span><span class="o">*</span><span class="n">t</span><span class="p">,</span> <span class="n">x_1</span><span class="p">)</span>
+            <span class="n">curve</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s">&#39;molecule&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_positions</span><span class="p">(</span><span class="n">convert_vector_to_atoms</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="n">metric_cf</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">energy</span> <span class="o">-</span> <span class="n">curve</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s">&#39;molecule&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()))</span>
+
+            <span class="k">return</span> <span class="n">metric_cf</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">x_2</span><span class="p">,</span> <span class="n">x_1</span><span class="p">),</span> <span class="n">mass_matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">x_2</span><span class="p">,</span> <span class="n">x_1</span><span class="p">))))</span>
+
+    <span class="c"># Add the trapezoidal rule approximation of the length functional for a line segment</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">l</span> <span class="o">+=</span> <span class="n">quad</span><span class="p">(</span><span class="n">integrand</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">t</span>
+
+
+<div class="viewcode-block" id="write_xyz_animation"><a class="viewcode-back" href="../../animation.html#geometricmd.animation.write_xyz_animation">[docs]</a><span class="k">def</span> <span class="nf">write_xyz_animation</span><span class="p">(</span><span class="n">curve_pickle</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This function takes a curve object that has been pickled and writes out an XYZ animation file to use with JMol.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      curve_pickle (str): The location of a pickled curve object.</span>
+<span class="sd">      filename (str): The location of where to write the XYZ animation.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Unpickle the curve object</span>
+    <span class="n">curve</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">curve_pickle</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">))</span>
+
+    <span class="c"># Extract the trajectories points</span>
+    <span class="n">trajectory</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">get_points</span><span class="p">()</span>
+
+    <span class="c"># Reparameterise to determine physical times</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">get_times</span><span class="p">(</span><span class="n">curve</span><span class="p">)</span>
+
+    <span class="c"># Index to determine correct time</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c"># Extract the curves molecular configuration as described by an ASE atoms object</span>
+    <span class="n">molecule</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s">&#39;molecule&#39;</span><span class="p">]</span>
+
+    <span class="c"># Create a new file for the animation to be stored</span>
+    <span class="n">animation_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+
+    <span class="c"># For each node along the curve...</span>
+    <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">trajectory</span><span class="p">:</span>
+
+        <span class="c"># Determine the molecular configuration in ASE</span>
+        <span class="n">molecule</span><span class="o">.</span><span class="n">set_positions</span><span class="p">(</span><span class="n">convert_vector_to_atoms</span><span class="p">(</span><span class="n">state</span><span class="p">))</span>
+
+        <span class="c"># Produce a snapshot XYZ file of the configuration at that point in time</span>
+        <span class="n">write</span><span class="p">(</span><span class="s">&#39;current_state.xyz&#39;</span><span class="p">,</span>
+              <span class="n">molecule</span><span class="p">,</span>
+              <span class="n">format</span><span class="o">=</span><span class="s">&#39;xyz&#39;</span><span class="p">,</span>
+              <span class="n">comment</span><span class="o">=</span><span class="s">&#39;T=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\t</span><span class="s">Potential Energy: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">molecule</span><span class="o">.</span><span class="n">get_potential_energy</span><span class="p">()))</span>
+
+        <span class="c"># Increase index</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c"># Open the newly produced XYZ file</span>
+        <span class="n">current_state</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;current_state.xyz&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+
+        <span class="c"># Append the snapshot XYZ file into the animation file</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">current_state</span><span class="p">:</span>
+            <span class="n">animation_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">current_state</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c"># Once finished close the file so that other programs can access it</span>
+    <span class="n">animation_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c"># Delete the temporary file used to store current snapshots</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;current_state.xyz&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2015, Daniel Sutton.<br/>
+      Last updated on Jul 08, 2015.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorial &mdash; GeometricMD</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.4/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.4/css/bootstrap-theme.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.2a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="GeometricMD" href="index.html" />
+    <link rel="prev" title="Geometry Module" href="geometry_pbc.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          GeometricMD</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.2</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="animation.html">Animation Module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="curve_shorten.html">Curve Shorten Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry Module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="curve_shorten_pbc.html">Curve Shorten Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry_pbc.html">Geometry Module</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Tutorial</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Tutorial</a><ul>
+<li><a class="reference internal" href="#butane-simulation">Butane Simulation</a><ul>
+<li><a class="reference internal" href="#single-process">Single Process</a></li>
+<li><a class="reference internal" href="#multiple-processes">Multiple Processes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="geometry_pbc.html" title="Previous Chapter: Geometry Module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Geometry Module</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/butane_tutorial.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+  <div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="butane-simulation">
+<h2>Butane Simulation<a class="headerlink" href="#butane-simulation" title="Permalink to this headline">¶</a></h2>
+<p>In this tutorial we will use the GeometricMD package to compute a transition path for a butane molecule. The files for
+the simulation, along with the scripts, are available in the <em>example</em> directory of the GeometricMD package.</p>
+<div class="section" id="single-process">
+<h3>Single Process<a class="headerlink" href="#single-process" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">geometricmd.curve_shorten</span> <span class="kn">import</span> <span class="n">compute_trajectory</span>
+<span class="kn">from</span> <span class="nn">geometricmd.geometry</span> <span class="kn">import</span> <span class="n">Curve</span>
+
+<span class="c"># Import ASE read function if getting molecule data from compatible file</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">read</span>
+
+<span class="c"># This example uses the EMT calculator for simplicity</span>
+<span class="kn">from</span> <span class="nn">ase.calculators.emt</span> <span class="kn">import</span> <span class="n">EMT</span>
+
+<span class="c"># Read in the molecule data for the initial point</span>
+<span class="n">start_point</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="s">&#39;x0.xyz&#39;</span><span class="p">)</span>
+
+<span class="c"># In order to compute the potential energy a calculator must be attached to the start atoms object</span>
+<span class="n">start_point</span><span class="o">.</span><span class="n">set_calculator</span><span class="p">(</span><span class="n">EMT</span><span class="p">())</span>
+
+<span class="c"># Read in the molecule data for the final point</span>
+<span class="n">end_point</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="s">&#39;xN.xyz&#39;</span><span class="p">)</span>
+
+<span class="c"># Create a GeometricMD curve object to represent the trajectory.</span>
+<span class="n">traj</span> <span class="o">=</span> <span class="n">Curve</span><span class="p">(</span><span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mf">1E+03</span><span class="p">)</span>
+
+<span class="c"># Perform the molecular simulation.</span>
+<span class="n">compute_trajectory</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">1E+03</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s">&#39;Butane&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;processes&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="multiple-processes">
+<h3>Multiple Processes<a class="headerlink" href="#multiple-processes" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">geometricmd.curve_shorten</span> <span class="kn">import</span> <span class="n">compute_trajectory</span>
+<span class="kn">from</span> <span class="nn">geometricmd.geometry</span> <span class="kn">import</span> <span class="n">Curve</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
+
+<span class="c"># Import ASE read function if getting molecule data from compatible file</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="kn">import</span> <span class="n">read</span>
+
+<span class="c"># This example uses the EMT calculator for simplicity</span>
+<span class="kn">from</span> <span class="nn">ase.calculators.emt</span> <span class="kn">import</span> <span class="n">EMT</span>
+
+<span class="c"># Read in the molecule data for the initial point</span>
+<span class="n">start_point</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="s">&#39;x0.xyz&#39;</span><span class="p">)</span>
+
+<span class="c"># In order to compute the potential energy a calculator must be attached to the start atoms object</span>
+<span class="n">start_point</span><span class="o">.</span><span class="n">set_calculator</span><span class="p">(</span><span class="n">EMT</span><span class="p">())</span>
+
+<span class="c"># Read in the molecule data for the final point</span>
+<span class="n">end_point</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="s">&#39;xN.xyz&#39;</span><span class="p">)</span>
+
+<span class="c"># Create a GeometricMD curve object to represent the trajectory.</span>
+<span class="n">traj</span> <span class="o">=</span> <span class="n">Curve</span><span class="p">(</span><span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mf">1E+03</span><span class="p">)</span>
+
+<span class="c"># Perform the molecular simulation.</span>
+<span class="n">compute_trajectory</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">1E+03</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s">&#39;Butane&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;processes&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">cpu_count</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">)})</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2015, Daniel Sutton.<br/>
+      Last updated on Jul 06, 2015.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

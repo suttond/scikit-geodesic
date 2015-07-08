@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>geometricmd.geometry_pbc &mdash; scikit-geodesic</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-3.3.4/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-3.3.4/css/bootstrap-theme.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.2a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="scikit-geodesic" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          scikit-geodesic</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.2</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../curve_shorten.html">Curve Shorten Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../geometry.html">Geometry Module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+  <h1>Source code for geometricmd.geometry_pbc</h1><div class="highlight"><pre>
+<span class="c"># Load packages which are a part of GeometricMD</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">geometry</span> <span class="kn">import</span> <span class="n">convert_atoms_to_vector</span><span class="p">,</span> <span class="n">convert_vector_to_atoms</span>
+
+<div class="viewcode-block" id="Curve"><a class="viewcode-back" href="../../geometry_pbc.html#geometricmd.geometry_pbc.Curve">[docs]</a><span class="k">class</span> <span class="nc">Curve</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    The purpose of this object is to provide a Curve object that has similar behaviour to that described in [Sutton2013]_.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">      start_point (numpy.array): A NumPy array describing the first point in the curve.</span>
+<span class="sd">      end_point (numpy.array): A NumPy array describing the last point in the curve.</span>
+<span class="sd">      number_of_nodes (int): The total number of nodes that the curve is to consist of, including the start and end points.</span>
+<span class="sd">      energy (float): The total Hamiltonian energy to be used in the simulation.</span>
+<span class="sd">      tangent (numpy.array): The tangent of the straight line segment joining the start_point to the end_point, rescaled according to [Sutton2013]_.</span>
+<span class="sd">      points (numpy.array): An NumPy array containing all the points of the curve.</span>
+<span class="sd">      default_initial_state (numpy.array): A NumPy array consisting of flags that indicate which nodes are movable initially.</span>
+<span class="sd">      movement (float): A variable which records the total movement of the curve as calculated in [Sutton2013]_.</span>
+<span class="sd">      nodes_moved (numpy.array): A binary NumPy array indicating whether a node has been moved. Used to determine when all the nodes in the curve have been moved.</span>
+<span class="sd">      node_movable (numpy.array): A binary NumPy array indicating whether a node is movable.</span>
+<span class="sd">      number_of_distinct_nodes_moved (int): A counter recording the total number of nodes that have moved.</span>
+<span class="sd">      configuration (dict): A dictionary containing the information from the configuration file.</span>
+<span class="sd">      cells (list): A list of NumPy arrays describing the unit cell in each configuration.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Curve.__init__"><a class="viewcode-back" href="../../geometry_pbc.html#geometricmd.geometry_pbc.Curve.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="n">number_of_nodes</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The constructor for the Curve class.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">          This class is intended to be used by the SimulationServer module.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          start_point (ase.atoms): An ASE atoms object describing the initial state. A calculator needs to be set on this object.</span>
+<span class="sd">          end_point (ase.atoms): An ASE atoms object describing the final state.</span>
+<span class="sd">          number_of_nodes (int): The number of nodes that the curve is to consist of, including the start and end points.</span>
+<span class="sd">          energy (float): The total Hamiltonian energy to be used in the simulation.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># Check if calculator attached to start_point, if not then raise an error.</span>
+        <span class="k">if</span> <span class="n">start_point</span><span class="o">.</span><span class="n">get_calculator</span><span class="p">()</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Calculator not attached to start configuration.&#39;</span><span class="p">)</span>
+
+        <span class="c"># Pass the initialiser arguments directly into the class attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">convert_atoms_to_vector</span><span class="p">(</span><span class="n">start_point</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_cell</span> <span class="o">=</span> <span class="n">start_point</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">convert_atoms_to_vector</span><span class="p">(</span><span class="n">end_point</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_cell</span> <span class="o">=</span> <span class="n">end_point</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">number_of_nodes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span>
+
+        <span class="c"># Compute the tangent vector - the rescaled vector of the line joining the start and end points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tangent</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_point</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_point</span><span class="p">)</span>
+
+        <span class="c"># Compute the initial curve, the straight line joining the start point to the end point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">start_point</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="o">-</span><span class="mi">1</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">tangent</span><span class="p">)]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">end_point</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Compute the cell tangent vector - the rescaled vector of the line joining the start and end points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cell_tangent</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_cell</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_cell</span><span class="p">)</span>
+
+        <span class="c"># Compute the cells, the straight line joining the start point to the end point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cells</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">start_cell</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="o">-</span><span class="mi">1</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_tangent</span><span class="p">))</span>
+
+        <span class="c"># Create and definite initial node_movable configuration. In this case even numbered nodes first.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_initial_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;int&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">default_initial_state</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="c"># Create all of the flags in the curve to indicate that the nodes in default_initial_state are movable.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">movement</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes_moved</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;int&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_movable</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_initial_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_distinct_nodes_moved</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c"># Create the attribute to store the simulation configuration.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">[</span><span class="s">&#39;molecule&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_point</span>
+</div>
+<div class="viewcode-block" id="Curve.set_node_movable"><a class="viewcode-back" href="../../geometry_pbc.html#geometricmd.geometry_pbc.Curve.set_node_movable">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_movable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Resets all of the flags in the curve to indicate that the current iteration of the Birkhoff algorithm is over.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># Reset the total movement of the curve to zero</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">movement</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="c"># Reset the flag that indicates if a node has been moved</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes_moved</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&#39;int&#39;</span><span class="p">)</span>
+
+        <span class="c"># Reset the flags that indicate which nodes are movable back to the initial state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_movable</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_initial_state</span><span class="p">)</span>
+
+        <span class="c"># Reset the count indicating the total number of distinct nodes that have been moved back to zero</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_distinct_nodes_moved</span> <span class="o">=</span> <span class="mi">0</span>
+</div>
+<div class="viewcode-block" id="Curve.set_node_position"><a class="viewcode-back" href="../../geometry_pbc.html#geometricmd.geometry_pbc.Curve.set_node_position">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_number</span><span class="p">,</span> <span class="n">new_position</span><span class="p">,</span> <span class="n">new_cell</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Update the position of the node at node_number to new_position. This processes the logic for releasing</span>
+<span class="sd">        neighbouring nodes for further computation.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            node_number (int): The node number of the node whose position is to be updated.</span>
+<span class="sd">            new_position (numpy.array): The new position of the node.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># Arithmetic to measure the total movement of a curve</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">movement</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">))</span> <span class="o">*</span> \
+            <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">new_position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">node_number</span><span class="p">]))</span>
+
+        <span class="c"># Update position of node with new position assumes new_position is float64 numpy array</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">node_number</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_position</span>
+
+        <span class="c"># Update new cell shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="n">node_number</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_cell</span>
+
+        <span class="c"># Arithmetic for determining if an existing nodes neighbours have been moved</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_movable</span><span class="p">[</span><span class="n">node_number</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_movable</span><span class="p">[</span><span class="n">node_number</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_movable</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_movable</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">node_number</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node_movable</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node_movable</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">node_number</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="o">-</span><span class="mi">3</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node_movable</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node_movable</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c"># Arithmetic to keep track of how many nodes have been moved distinctly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes_moved</span><span class="p">[</span><span class="n">node_number</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_distinct_nodes_moved</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes_moved</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Curve.next"><a class="viewcode-back" href="../../geometry_pbc.html#geometricmd.geometry_pbc.Curve.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Determine next movable node, given existing information about previously distributed nodes. Used to ensure</span>
+<span class="sd">            the curve object is Python iterable..</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The node number of the next movable node. If no such node exists then it returns None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># This will get quicker with NumPy 2.0.0 - https://github.com/numpy/numpy/issues/2269</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c"># Determine the node number of the next movable node in the next_movable_node array. This particular test</span>
+            <span class="c"># attempts to find a node that has not been previously moved.</span>
+            <span class="n">next_movable_node</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_movable</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes_moved</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c"># If there is no node available that hasn&#39;t been previously moved then...</span>
+            <span class="k">if</span> <span class="n">next_movable_node</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+
+                <span class="c"># Simply find a node that is movable. This time we include previously moved nodes in our search</span>
+                <span class="n">next_movable_node</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_movable</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c"># If we still couldn&#39;t find a node...</span>
+            <span class="k">if</span> <span class="n">next_movable_node</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+
+                <span class="c"># Raise a StopIteration</span>
+                <span class="k">raise</span> <span class="ne">StopIteration</span>
+
+            <span class="c"># Otherwise...</span>
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c"># Mark the node as no longer movable to prevent it being re-issued.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">node_movable</span><span class="p">[</span><span class="n">next_movable_node</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="c"># Return the node number</span>
+                <span class="k">return</span> <span class="n">next_movable_node</span>
+
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+
+            <span class="c"># Raise a StopIteration</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span>
+</div>
+<div class="viewcode-block" id="Curve.get_points"><a class="viewcode-back" href="../../geometry_pbc.html#geometricmd.geometry_pbc.Curve.get_points">[docs]</a>    <span class="k">def</span> <span class="nf">get_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Accessor method for the points attribute.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            numpy.array: An array containing all of the points of the curve.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span>
+</div>
+<div class="viewcode-block" id="Curve.all_nodes_moved"><a class="viewcode-back" href="../../geometry_pbc.html#geometricmd.geometry_pbc.Curve.all_nodes_moved">[docs]</a>    <span class="k">def</span> <span class="nf">all_nodes_moved</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This method determines whether every node in the global curve has been tested for length reduction.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          bool: True if all of the nodes have been tested, False otherwise.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_distinct_nodes_moved</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="Curve.__iter__"><a class="viewcode-back" href="../../geometry_pbc.html#geometricmd.geometry_pbc.Curve.__iter__">[docs]</a>    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This special method ensures a curve object is iterable.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          self</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div></div></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2015, Daniel Sutton.<br/>
+      Last updated on Jul 08, 2015.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

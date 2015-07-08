@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Curve Shorten Module &mdash; scikit-geodesic</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.4/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.4/css/bootstrap-theme.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.2a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="scikit-geodesic" href="index.html" />
+    <link rel="next" title="Geometry Module" href="geometry.html" />
+    <link rel="prev" title="scikit-geodesic" href="index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          scikit-geodesic</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.2</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Curve Shorten Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry Module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Curve Shorten Module</a><ul>
+<li><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="index.html" title="Previous Chapter: scikit-geodesic"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; scikit-geodesic</span>
+    </a>
+  </li>
+  <li>
+    <a href="geometry.html" title="Next Chapter: Geometry Module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Geometry Module &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/curve_shorten.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+  <div class="section" id="module-geometricmd.curve_shorten">
+<span id="curve-shorten-module"></span><h1>Curve Shorten Module<a class="headerlink" href="#module-geometricmd.curve_shorten" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="geometricmd.curve_shorten.compute_trajectory">
+<code class="descclassname">geometricmd.curve_shorten.</code><code class="descname">compute_trajectory</code><span class="sig-paren">(</span><em>trajectory</em>, <em>local_num_nodes</em>, <em>energy</em>, <em>tol</em>, <em>filename</em>, <em>configuration</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/curve_shorten.html#compute_trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.curve_shorten.compute_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function creates a new task to compute a geodesic midpoint and submits it to the worker pool.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>trajectory</strong> (<em>curve</em>) &#8211; A GeometricMD curve object describing the initial trajectory between start and end configurations.</li>
+<li><strong>local_num_nodes</strong> (<em>int</em>) &#8211; The number of points to use when computing the local geodesics.</li>
+<li><strong>energy</strong> (<em>float</em>) &#8211; The total energy of the system.</li>
+<li><strong>tol</strong> (<em>float</em>) &#8211; The tolerance by which if the total curve movement falls below this number then the Birkhoff method stops.</li>
+<li><strong>filename</strong> (<em>str</em>) &#8211; The filename for the output files from the simulation.</li>
+<li><strong>configuration</strong> (<em>dict</em>) &#8211; A dictionary containing additional parameters for the simulation. Accepts: &#8216;processes&#8217; - the number of processors to use (defaults to 1), &#8216;write_to_log&#8217; - a boolean value, if true writes to a logfile, otherwise prints to console (defaults to False) and &#8216;save_every&#8217; - an integer indicating the program will save after every &#8216;save_every&#8217;th iteration of the Birkhoff algorithm (defaults to 1).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometricmd.curve_shorten.find_geodesic_midpoint">
+<code class="descclassname">geometricmd.curve_shorten.</code><code class="descname">find_geodesic_midpoint</code><span class="sig-paren">(</span><em>start_point</em>, <em>end_point</em>, <em>number_of_inner_points</em>, <em>dimension</em>, <em>mass_matrix</em>, <em>molecule</em>, <em>energy</em>, <em>node_number</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/curve_shorten.html#find_geodesic_midpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.curve_shorten.find_geodesic_midpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function computes the local geodesic curve joining start_point to end_point using the L-BFGS method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start_point</strong> (<em>numpy.array</em>) &#8211; The first end point of the curve.</li>
+<li><strong>end_point</strong> (<em>numpy.array</em>) &#8211; The last end point of the curve.</li>
+<li><strong>number_of_inner_points</strong> (<em>int</em>) &#8211; The number of nodes along the curve, less the end points.</li>
+<li><strong>dimension</strong> (<em>int</em>) &#8211; The dimension of the problem. Computed from the atomistic simulation environment.</li>
+<li><strong>mass_matrix</strong> (<em>numpy.array</em>) &#8211; A diagonal NumPy array containing the masses of the molecular system as computed in the SimulationClient object.</li>
+<li><strong>molecule</strong> (<em>ase.atoms</em>) &#8211; The ASE atoms object corresponding to the molecule being simulated.</li>
+<li><strong>energy</strong> (<em>float</em>) &#8211; The total energy of the system.</li>
+<li><strong>node_number</strong> (<em>int</em>) &#8211; The node number for which we are calculating a new position for.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The midpoint along the approximate local geodesic curve.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometricmd.curve_shorten.length">
+<code class="descclassname">geometricmd.curve_shorten.</code><code class="descname">length</code><span class="sig-paren">(</span><em>x</em>, <em>start_point</em>, <em>end_point</em>, <em>number_of_inner_nodes</em>, <em>mass_matrix</em>, <em>dimension</em>, <em>molecule</em>, <em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/curve_shorten.html#length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.curve_shorten.length" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function computes an approximation of the length functional for local geodesics. It also provides the
+gradient of this approximation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>numpy.array</em>) &#8211; The positions of the interior curve points.</li>
+<li><strong>start_point</strong> (<em>numpy.array</em>) &#8211; The first end point of the curve.</li>
+<li><strong>end_point</strong> (<em>numpy.array</em>) &#8211; The last end point of the curve.</li>
+<li><strong>number_of_inner_points</strong> (<em>int</em>) &#8211; The number of nodes along the curve, less the end points.</li>
+<li><strong>mass_matrix</strong> (<em>numpy.array</em>) &#8211; A diagonal NumPy array containing the masses of the molecular system as computed in the SimulationClient object.</li>
+<li><strong>dimension</strong> (<em>int</em>) &#8211; The dimension of the problem. Computed from the atomistic simulation environment.</li>
+<li><strong>molecule</strong> (<em>ase.atoms</em>) &#8211; The ASE atoms object corresponding to the molecule being simulated.</li>
+<li><strong>energy</strong> (<em>float</em>) &#8211; The total energy of the system.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The approximate length of the curve and the corresponding gradient.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float, numpy.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils citation" frame="void" id="sutton2013" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Sutton2013]</td><td>Microscopic Hamiltonian Systems and their Effective Description, Daniel C. Sutton, 2013.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2015, Daniel Sutton.<br/>
+      Last updated on Jul 08, 2015.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

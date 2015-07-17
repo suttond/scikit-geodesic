@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2a',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -51,7 +51,7 @@
         </button>
         <a class="navbar-brand" href="index.html">
           scikit-geodesic</a>
-        <span class="navbar-text navbar-version pull-left"><b>1.2</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>1.1</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -85,10 +85,7 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">Curve Shorten Module</a><ul>
-<li><a class="reference internal" href="#references">References</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#">Curve Shorten Module</a></li>
 </ul>
 </ul>
 </li>
@@ -136,23 +133,22 @@
   <div class="row">
     <div class="col-md-12">
       
-  <div class="section" id="module-geometricmd.curve_shorten">
-<span id="curve-shorten-module"></span><h1>Curve Shorten Module<a class="headerlink" href="#module-geometricmd.curve_shorten" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-geodesic.curve_shorten">
+<span id="curve-shorten-module"></span><h1>Curve Shorten Module<a class="headerlink" href="#module-geodesic.curve_shorten" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
-<dt id="geometricmd.curve_shorten.compute_trajectory">
-<code class="descclassname">geometricmd.curve_shorten.</code><code class="descname">compute_trajectory</code><span class="sig-paren">(</span><em>trajectory</em>, <em>local_num_nodes</em>, <em>energy</em>, <em>tol</em>, <em>filename</em>, <em>configuration</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/curve_shorten.html#compute_trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.curve_shorten.compute_trajectory" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.curve_shorten.compute_geodesic">
+<code class="descclassname">geodesic.curve_shorten.</code><code class="descname">compute_geodesic</code><span class="sig-paren">(</span><em>curve_obj</em>, <em>local_num_nodes</em>, <em>tol</em>, <em>metric</em>, <em>grad_metric</em>, <em>processes=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/curve_shorten.html#compute_geodesic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.curve_shorten.compute_geodesic" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function creates a new task to compute a geodesic midpoint and submits it to the worker pool.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>trajectory</strong> (<em>curve</em>) &#8211; A GeometricMD curve object describing the initial trajectory between start and end configurations.</li>
+<li><strong>curve_obj</strong> (<em>curve</em>) &#8211; A GeometricMD curve object describing the initial trajectory between start and end configurations.</li>
 <li><strong>local_num_nodes</strong> (<em>int</em>) &#8211; The number of points to use when computing the local geodesics.</li>
-<li><strong>energy</strong> (<em>float</em>) &#8211; The total energy of the system.</li>
 <li><strong>tol</strong> (<em>float</em>) &#8211; The tolerance by which if the total curve movement falls below this number then the Birkhoff method stops.</li>
-<li><strong>filename</strong> (<em>str</em>) &#8211; The filename for the output files from the simulation.</li>
-<li><strong>configuration</strong> (<em>dict</em>) &#8211; A dictionary containing additional parameters for the simulation. Accepts: &#8216;processes&#8217; - the number of processors to use (defaults to 1), &#8216;write_to_log&#8217; - a boolean value, if true writes to a logfile, otherwise prints to console (defaults to False) and &#8216;save_every&#8217; - an integer indicating the program will save after every &#8216;save_every&#8217;th iteration of the Birkhoff algorithm (defaults to 1).</li>
+<li><strong>metric</strong> (<em>func</em>) &#8211; A Python function taking a single vector argument the same dimension as the start point.</li>
+<li><strong>processes</strong> (<em>optional, int</em>) &#8211; The number of processes to parallelise the task over.</li>
 </ul>
 </td>
 </tr>
@@ -161,8 +157,33 @@
 </dd></dl>
 
 <dl class="function">
-<dt id="geometricmd.curve_shorten.find_geodesic_midpoint">
-<code class="descclassname">geometricmd.curve_shorten.</code><code class="descname">find_geodesic_midpoint</code><span class="sig-paren">(</span><em>start_point</em>, <em>end_point</em>, <em>number_of_inner_points</em>, <em>dimension</em>, <em>mass_matrix</em>, <em>molecule</em>, <em>energy</em>, <em>node_number</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/curve_shorten.html#find_geodesic_midpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.curve_shorten.find_geodesic_midpoint" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.curve_shorten.compute_metric">
+<code class="descclassname">geodesic.curve_shorten.</code><code class="descname">compute_metric</code><span class="sig-paren">(</span><em>points</em>, <em>metric_function</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/curve_shorten.html#compute_metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.curve_shorten.compute_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list of NumPy arrays describing points molecular configurations, evaluates the metric at each point and
+returns a list of metric values at those points.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>points</strong> (<em>list</em>) &#8211; A list of NumPy arrays describing molecular configurations.</li>
+<li><strong>metric_function</strong> (<em>func</em>) &#8211; A Python function which gives the value of sqrt(2(E - V)) at a given point.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of metric values at the corresponding points.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geodesic.curve_shorten.find_geodesic_midpoint">
+<code class="descclassname">geodesic.curve_shorten.</code><code class="descname">find_geodesic_midpoint</code><span class="sig-paren">(</span><em>start_point</em>, <em>end_point</em>, <em>number_of_inner_points</em>, <em>dimension</em>, <em>node_number</em>, <em>metric</em>, <em>grad_metric</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/curve_shorten.html#find_geodesic_midpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.curve_shorten.find_geodesic_midpoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function computes the local geodesic curve joining start_point to end_point using the L-BFGS method.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -173,10 +194,10 @@
 <li><strong>end_point</strong> (<em>numpy.array</em>) &#8211; The last end point of the curve.</li>
 <li><strong>number_of_inner_points</strong> (<em>int</em>) &#8211; The number of nodes along the curve, less the end points.</li>
 <li><strong>dimension</strong> (<em>int</em>) &#8211; The dimension of the problem. Computed from the atomistic simulation environment.</li>
-<li><strong>mass_matrix</strong> (<em>numpy.array</em>) &#8211; A diagonal NumPy array containing the masses of the molecular system as computed in the SimulationClient object.</li>
-<li><strong>molecule</strong> (<em>ase.atoms</em>) &#8211; The ASE atoms object corresponding to the molecule being simulated.</li>
-<li><strong>energy</strong> (<em>float</em>) &#8211; The total energy of the system.</li>
 <li><strong>node_number</strong> (<em>int</em>) &#8211; The node number for which we are calculating a new position for.</li>
+<li><strong>metric</strong> (<em>func</em>) &#8211; A Python function taking a single vector argument the same dimension as the start point.</li>
+<li><strong>grad_metric</strong> (<em>func</em>) &#8211; A Python function taking a single vector argument the same dimension as the start point. Returning a vector
+the same length as it&#8217;s argument.</li>
 </ul>
 </td>
 </tr>
@@ -191,45 +212,149 @@
 </dd></dl>
 
 <dl class="function">
-<dt id="geometricmd.curve_shorten.length">
-<code class="descclassname">geometricmd.curve_shorten.</code><code class="descname">length</code><span class="sig-paren">(</span><em>x</em>, <em>start_point</em>, <em>end_point</em>, <em>number_of_inner_nodes</em>, <em>mass_matrix</em>, <em>dimension</em>, <em>molecule</em>, <em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/curve_shorten.html#length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.curve_shorten.length" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function computes an approximation of the length functional for local geodesics. It also provides the
-gradient of this approximation.</p>
+<dt id="geodesic.curve_shorten.generate_points">
+<code class="descclassname">geodesic.curve_shorten.</code><code class="descname">generate_points</code><span class="sig-paren">(</span><em>x</em>, <em>start_point</em>, <em>end_point</em>, <em>rotation_matrix</em>, <em>total_number_of_points</em>, <em>co_dimension</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/curve_shorten.html#generate_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.curve_shorten.generate_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function computes the local geodesic curve joining start_point to end_point using the L-BFGS method.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>numpy.array</em>) &#8211; The positions of the interior curve points.</li>
+<li><strong>x</strong> (<em>numpy.array</em>) &#8211; Array of vectors in co-dimension dimensional space, stacked flat. This vector characterises points of the
+curve as translations from the line joining start_point to end_point.</li>
 <li><strong>start_point</strong> (<em>numpy.array</em>) &#8211; The first end point of the curve.</li>
 <li><strong>end_point</strong> (<em>numpy.array</em>) &#8211; The last end point of the curve.</li>
-<li><strong>number_of_inner_points</strong> (<em>int</em>) &#8211; The number of nodes along the curve, less the end points.</li>
-<li><strong>mass_matrix</strong> (<em>numpy.array</em>) &#8211; A diagonal NumPy array containing the masses of the molecular system as computed in the SimulationClient object.</li>
-<li><strong>dimension</strong> (<em>int</em>) &#8211; The dimension of the problem. Computed from the atomistic simulation environment.</li>
-<li><strong>molecule</strong> (<em>ase.atoms</em>) &#8211; The ASE atoms object corresponding to the molecule being simulated.</li>
-<li><strong>energy</strong> (<em>float</em>) &#8211; The total energy of the system.</li>
+<li><strong>rotation_matrix</strong> (<em>numpy.array</em>) &#8211; A numpy.array describing the rotation from co_dimension + 1 dimensional space to the tangent space of the line
+joining start_point to end_point.</li>
+<li><strong>total_number_of_points</strong> (<em>int</em>) &#8211; The total number of points used in the local geodesic computation, including endpoints.</li>
+<li><strong>co_dimension</strong> (<em>int</em>) &#8211; The dimension of the configuration space, less one.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The approximate length of the curve and the corresponding gradient.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The midpoint along the approximate local geodesic curve.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float, numpy.array</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
 </td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
-<div class="section" id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<table class="docutils citation" frame="void" id="sutton2013" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
+<dl class="function">
+<dt id="geodesic.curve_shorten.get_rotation">
+<code class="descclassname">geodesic.curve_shorten.</code><code class="descname">get_rotation</code><span class="sig-paren">(</span><em>start_point</em>, <em>end_point</em>, <em>dimension</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/curve_shorten.html#get_rotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.curve_shorten.get_rotation" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Computes the transformation from dimension dimensional space to the tangent space of the line</dt>
+<dd>joining start_point to end_point.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
 <tbody valign="top">
-<tr><td class="label">[Sutton2013]</td><td>Microscopic Hamiltonian Systems and their Effective Description, Daniel C. Sutton, 2013.</td></tr>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>start_point</strong> (<em>numpy.array</em>) &#8211; The first end point of the curve.</li>
+<li><strong>end_point</strong> (<em>numpy.array</em>) &#8211; The last end point of the curve.</li>
+<li><strong>dimension</strong> (<em>int</em>) &#8211; The dimension of the configuration space.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The matrix representing the linear transformation from dimension dimensional space to the tangent space of
+the line joining start_point to end_point.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
+</td>
+</tr>
 </tbody>
 </table>
-</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="geodesic.curve_shorten.length">
+<code class="descclassname">geodesic.curve_shorten.</code><code class="descname">length</code><span class="sig-paren">(</span><em>x</em>, <em>start_point</em>, <em>end_point</em>, <em>rotation_matrix</em>, <em>total_number_of_points</em>, <em>co_dimension</em>, <em>metric</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/curve_shorten.html#length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.curve_shorten.length" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function computes the length of the local geodesic as a function of shifts from the line joining
+start_point to end_point. It also returns the gradient of this function for the L-BFGS method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>numpy.array</em>) &#8211; Array of vectors in co-dimension dimensional space, stacked flat. This vector characterises points of the
+curve as translations from the line joining start_point to end_point.</li>
+<li><strong>start_point</strong> (<em>numpy.array</em>) &#8211; The first end point of the curve.</li>
+<li><strong>end_point</strong> (<em>numpy.array</em>) &#8211; The last end point of the curve.</li>
+<li><strong>rotation_matrix</strong> (<em>numpy.array</em>) &#8211; A numpy.array describing the rotation from co_dimension + 1 dimensional space to the tangent space of the line
+joining start_point to end_point.</li>
+<li><strong>total_number_of_points</strong> (<em>int</em>) &#8211; The total number of points used in the local geodesic computation, including endpoints.</li>
+<li><strong>co_dimension</strong> (<em>int</em>) &#8211; The dimension of the configuration space, less one.</li>
+<li><strong>metric</strong> (<em>func</em>) &#8211; A Python function which when given a list of NumPy arrays, returns a list of metric values on those arrays.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>The approximate length of the geodesic.
+numpy.array :</p>
+<blockquote>
+<div><p>The gradient of the approximate length of the geodesic.</p>
+</div></blockquote>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geodesic.curve_shorten.norm">
+<code class="descclassname">geodesic.curve_shorten.</code><code class="descname">norm</code><span class="sig-paren">(</span><em>x</em>, <em>matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/curve_shorten.html#norm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.curve_shorten.norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the value of sqrt(&lt;x, matrix*x&gt;).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>numpy.array</em>) &#8211; A vector, stored as a NumPy array, to compute the norm for.</li>
+<li><strong>matrix</strong> (<em>numpy.array</em>) &#8211; A matrix, stored as a NumPy array, used in the computation of &lt;x, matrix*x&gt;.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The value of sqrt(&lt;x, matrix*x&gt;).</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geodesic.curve_shorten.norm_gradient">
+<code class="descclassname">geodesic.curve_shorten.</code><code class="descname">norm_gradient</code><span class="sig-paren">(</span><em>x</em>, <em>matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/curve_shorten.html#norm_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.curve_shorten.norm_gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the gradient of sqrt(&lt;x, matrix*x&gt;).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>numpy.array</em>) &#8211; A vector, stored as a NumPy array, to compute the norm for.</li>
+<li><strong>matrix</strong> (<em>numpy.array</em>) &#8211; A matrix, stored as a NumPy array, used in the computation of &lt;x, matrix*x&gt;.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The gradient of sqrt(&lt;x, matrix*x&gt;).</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -245,7 +370,7 @@ gradient of this approximation.</p>
     </p>
     <p>
         &copy; Copyright 2015, Daniel Sutton.<br/>
-      Last updated on Jul 08, 2015.<br/>
+      Last updated on Jul 17, 2015.<br/>
     </p>
   </div>
 </footer>

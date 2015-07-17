@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>geodesic.curve_shorten &mdash; scikit-geodesic</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-3.3.4/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-3.3.4/css/bootstrap-theme.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="scikit-geodesic" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          scikit-geodesic</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../curve_shorten.html">Curve Shorten Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../geometry.html">Geometry Module</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+  <h1>Source code for geodesic.curve_shorten</h1><div class="highlight"><pre>
+<span class="c"># Load packages which form part of the Python 2.7 core</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="c"># Load additional packages and check if they are installed</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">print</span> <span class="s">&#39;NumPy is not installed. Try to run *pip install numpy*.&#39;</span>
+    <span class="n">quit</span><span class="p">()</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fmin_l_bfgs_b</span><span class="p">,</span> <span class="n">check_grad</span>
+    <span class="kn">from</span> <span class="nn">scipy.linalg</span> <span class="kn">import</span> <span class="n">orth</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">print</span> <span class="s">&#39;SciPy is not installed. Try to run *pip install scipy*.&#39;</span>
+    <span class="n">quit</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="generate_points"><a class="viewcode-back" href="../../curve_shorten.html#geodesic.curve_shorten.generate_points">[docs]</a><span class="k">def</span> <span class="nf">generate_points</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="n">rotation_matrix</span><span class="p">,</span> <span class="n">total_number_of_points</span><span class="p">,</span> <span class="n">co_dimension</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This function computes the local geodesic curve joining start_point to end_point using the L-BFGS method.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      x (numpy.array) :</span>
+<span class="sd">          Array of vectors in co-dimension dimensional space, stacked flat. This vector characterises points of the</span>
+<span class="sd">          curve as translations from the line joining start_point to end_point.</span>
+<span class="sd">      start_point (numpy.array) :</span>
+<span class="sd">          The first end point of the curve.</span>
+<span class="sd">      end_point (numpy.array) :</span>
+<span class="sd">          The last end point of the curve.</span>
+<span class="sd">      rotation_matrix (numpy.array) :</span>
+<span class="sd">          A numpy.array describing the rotation from co_dimension + 1 dimensional space to the tangent space of the line</span>
+<span class="sd">          joining start_point to end_point.</span>
+<span class="sd">      total_number_of_points (int):</span>
+<span class="sd">          The total number of points used in the local geodesic computation, including endpoints.</span>
+<span class="sd">      co_dimension (int):</span>
+<span class="sd">          The dimension of the configuration space, less one.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      numpy.array :</span>
+<span class="sd">          The midpoint along the approximate local geodesic curve.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Compute tangent direction of line joining start and end points</span>
+    <span class="n">tangent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">end_point</span><span class="p">,</span> <span class="n">start_point</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">total_number_of_points</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c"># Initialise list to store points</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c"># Generate points that are uniformly distributed along the initial line</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">total_number_of_points</span><span class="p">):</span>
+        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">start_point</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">*</span><span class="n">tangent</span><span class="p">))</span>
+
+    <span class="c"># Shift the points as encoded in x</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="n">co_dimension</span><span class="p">):</span>
+
+        <span class="c"># Embed vector i into co_dimension + 1 dimensional space</span>
+        <span class="n">unrotated_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">co_dimension</span><span class="p">:(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">co_dimension</span><span class="p">]))</span>
+
+        <span class="c"># Convert vector, by rotation, from shift from e_1 basis direction to shift from tangent direction</span>
+        <span class="n">shift</span> <span class="o">=</span> <span class="n">rotation_matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">unrotated_shift</span><span class="p">)</span>
+
+        <span class="c"># Append point to list</span>
+        <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">shift</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">points</span>
+
+</div>
+<div class="viewcode-block" id="compute_metric"><a class="viewcode-back" href="../../curve_shorten.html#geodesic.curve_shorten.compute_metric">[docs]</a><span class="k">def</span> <span class="nf">compute_metric</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">metric_function</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Takes a list of NumPy arrays describing points molecular configurations, evaluates the metric at each point and</span>
+<span class="sd">    returns a list of metric values at those points.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      points (list) :</span>
+<span class="sd">          A list of NumPy arrays describing molecular configurations.</span>
+<span class="sd">      metric_function (func) :</span>
+<span class="sd">          A Python function which gives the value of sqrt(2(E - V)) at a given point.</span>
+
+
+<span class="sd">    Returns:</span>
+<span class="sd">      list :</span>
+<span class="sd">          A list of metric values at the corresponding points.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Initialise the list to store metric values</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c"># For each point, compute the metric at that point</span>
+    <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metric_function</span><span class="p">(</span><span class="n">point</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">metric</span>
+
+</div>
+<div class="viewcode-block" id="norm"><a class="viewcode-back" href="../../curve_shorten.html#geodesic.curve_shorten.norm">[docs]</a><span class="k">def</span> <span class="nf">norm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Computes the value of sqrt(&lt;x, matrix*x&gt;).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      x (numpy.array) :</span>
+<span class="sd">          A vector, stored as a NumPy array, to compute the norm for.</span>
+<span class="sd">      matrix (numpy.array) :</span>
+<span class="sd">          A matrix, stored as a NumPy array, used in the computation of &lt;x, matrix*x&gt;.</span>
+
+
+<span class="sd">    Returns:</span>
+<span class="sd">      float :</span>
+<span class="sd">          The value of sqrt(&lt;x, matrix*x&gt;).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+
+</div>
+<div class="viewcode-block" id="norm_gradient"><a class="viewcode-back" href="../../curve_shorten.html#geodesic.curve_shorten.norm_gradient">[docs]</a><span class="k">def</span> <span class="nf">norm_gradient</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Computes the gradient of sqrt(&lt;x, matrix*x&gt;).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      x (numpy.array) :</span>
+<span class="sd">          A vector, stored as a NumPy array, to compute the norm for.</span>
+<span class="sd">      matrix (numpy.array) :</span>
+<span class="sd">          A matrix, stored as a NumPy array, used in the computation of &lt;x, matrix*x&gt;.</span>
+
+
+<span class="sd">    Returns:</span>
+<span class="sd">      numpy.array :</span>
+<span class="sd">          The gradient of sqrt(&lt;x, matrix*x&gt;).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">matrix</span> <span class="o">+</span> <span class="n">matrix</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">matrix</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="length"><a class="viewcode-back" href="../../curve_shorten.html#geodesic.curve_shorten.length">[docs]</a><span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="n">rotation_matrix</span><span class="p">,</span> <span class="n">total_number_of_points</span><span class="p">,</span> <span class="n">co_dimension</span><span class="p">,</span> <span class="n">metric</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This function computes the length of the local geodesic as a function of shifts from the line joining</span>
+<span class="sd">    start_point to end_point. It also returns the gradient of this function for the L-BFGS method.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      x (numpy.array) :</span>
+<span class="sd">          Array of vectors in co-dimension dimensional space, stacked flat. This vector characterises points of the</span>
+<span class="sd">          curve as translations from the line joining start_point to end_point.</span>
+<span class="sd">      start_point (numpy.array) :</span>
+<span class="sd">          The first end point of the curve.</span>
+<span class="sd">      end_point (numpy.array) :</span>
+<span class="sd">          The last end point of the curve.</span>
+<span class="sd">      rotation_matrix (numpy.array) :</span>
+<span class="sd">          A numpy.array describing the rotation from co_dimension + 1 dimensional space to the tangent space of the line</span>
+<span class="sd">          joining start_point to end_point.</span>
+<span class="sd">      total_number_of_points (int) :</span>
+<span class="sd">          The total number of points used in the local geodesic computation, including endpoints.</span>
+<span class="sd">      co_dimension (int) :</span>
+<span class="sd">          The dimension of the configuration space, less one.</span>
+<span class="sd">      metric (func) :</span>
+<span class="sd">          A Python function which when given a list of NumPy arrays, returns a list of metric values on those arrays.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      float :</span>
+<span class="sd">          The approximate length of the geodesic.</span>
+<span class="sd">      numpy.array :</span>
+<span class="sd">          The gradient of the approximate length of the geodesic.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Convert the shifts x into points in the full dimensional space</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">generate_points</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="n">rotation_matrix</span><span class="p">,</span> <span class="n">total_number_of_points</span><span class="p">,</span> <span class="n">co_dimension</span><span class="p">)</span>
+
+    <span class="c"># Pre-compute the metric values to minimise repeated metric evaluations</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">compute_metric</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
+
+    <span class="c"># Compute quantities used to determine the length and gradient</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">norm_gradient</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">co_dimension</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">co_dimension</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c"># Initialise the length with the trapezoidal approximation of the first line segments length</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="n">u</span> <span class="o">*</span> <span class="n">b</span>
+    <span class="c"># Initialise a list to store the gradient</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+
+        <span class="c"># Compute the quantities needed for the next trapezoidal rule approximation.</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">norm_gradient</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">co_dimension</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">co_dimension</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="c"># Add length of line segment to total length</span>
+        <span class="n">l</span> <span class="o">+=</span> <span class="n">v</span> <span class="o">*</span> <span class="n">d</span>
+
+        <span class="c"># Compute next gradient component and update gradient</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rotation_matrix</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">b</span> <span class="o">+</span> <span class="n">d</span><span class="p">)</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="n">c</span> <span class="o">-</span> <span class="n">v</span> <span class="o">*</span> <span class="n">e</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+
+        <span class="c"># Pass back calculated values for efficiency</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">d</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">e</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">v</span>
+
+    <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">l</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">g</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="get_rotation"><a class="viewcode-back" href="../../curve_shorten.html#geodesic.curve_shorten.get_rotation">[docs]</a><span class="k">def</span> <span class="nf">get_rotation</span><span class="p">(</span><span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="n">dimension</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Computes the transformation from dimension dimensional space to the tangent space of the line</span>
+<span class="sd">          joining start_point to end_point.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      start_point (numpy.array) :</span>
+<span class="sd">          The first end point of the curve.</span>
+<span class="sd">      end_point (numpy.array) :</span>
+<span class="sd">          The last end point of the curve.</span>
+<span class="sd">      dimension (int) :</span>
+<span class="sd">          The dimension of the configuration space.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      numpy.array :</span>
+<span class="sd">          The matrix representing the linear transformation from dimension dimensional space to the tangent space of</span>
+<span class="sd">          the line joining start_point to end_point.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Compute tangent direction of line joining start and end points</span>
+    <span class="n">tangent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">end_point</span><span class="p">,</span> <span class="n">start_point</span><span class="p">)</span>
+
+    <span class="c"># Set the first column of our output matrix as tangent</span>
+    <span class="n">mx</span> <span class="o">=</span> <span class="n">tangent</span>
+
+    <span class="c"># Find the first non-zero entry of the tangent vector (exists as start and endpoints are different)</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">mx</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c"># For the remaining dim - 1 columns choose unit basis vectors of the form (0,...,0,1,0,...,0) with the nonzero entry</span>
+    <span class="c"># not in position j.</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dimension</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">dimension</span><span class="p">)</span>
+            <span class="n">e</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">mx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">mx</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+
+    <span class="n">mx</span> <span class="o">=</span> <span class="n">mx</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+    <span class="c"># With the resulting matrix, perform the Gram-Schmidt orthonormalisation procedure on the transpose of the matrix</span>
+    <span class="c"># and return it.</span>
+    <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">mx</span><span class="p">)</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">])</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">])</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+
+        <span class="n">v</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">mx</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">j</span><span class="p">):</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Q</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span> <span class="n">mx</span><span class="p">[:,</span><span class="n">j</span><span class="p">]);</span> <span class="n">R</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">r</span>
+            <span class="n">v</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[:]</span> <span class="o">-</span> <span class="n">r</span><span class="o">*</span><span class="n">Q</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">);</span> <span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">=</span> <span class="n">r</span>
+        <span class="n">Q</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[:]</span><span class="o">/</span><span class="n">r</span>
+
+    <span class="k">return</span> <span class="n">Q</span>
+
+</div>
+<div class="viewcode-block" id="find_geodesic_midpoint"><a class="viewcode-back" href="../../curve_shorten.html#geodesic.curve_shorten.find_geodesic_midpoint">[docs]</a><span class="k">def</span> <span class="nf">find_geodesic_midpoint</span><span class="p">(</span><span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="n">number_of_inner_points</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">node_number</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">grad_metric</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This function computes the local geodesic curve joining start_point to end_point using the L-BFGS method.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      start_point (numpy.array) :</span>
+<span class="sd">          The first end point of the curve.</span>
+<span class="sd">      end_point (numpy.array) :</span>
+<span class="sd">          The last end point of the curve.</span>
+<span class="sd">      number_of_inner_points (int) :</span>
+<span class="sd">          The number of nodes along the curve, less the end points.</span>
+<span class="sd">      dimension (int) :</span>
+<span class="sd">          The dimension of the problem. Computed from the atomistic simulation environment.</span>
+<span class="sd">      node_number (int) :</span>
+<span class="sd">          The node number for which we are calculating a new position for.</span>
+<span class="sd">      metric (func) :</span>
+<span class="sd">          A Python function taking a single vector argument the same dimension as the start point.</span>
+<span class="sd">      grad_metric (func) :</span>
+<span class="sd">          A Python function taking a single vector argument the same dimension as the start point. Returning a vector</span>
+<span class="sd">          the same length as it&#39;s argument.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      numpy.array :</span>
+<span class="sd">          The midpoint along the approximate local geodesic curve.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># Define a function that returns sqrt(2(E-V)) and it&#39;s gradient based on a given configuration</span>
+    <span class="k">def</span> <span class="nf">metric_and_metric_grad</span><span class="p">(</span><span class="n">point</span><span class="p">):</span>
+
+        <span class="c"># Return sqrt(2(E-V)) and it&#39;s gradient</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">metric</span><span class="p">(</span><span class="n">point</span><span class="p">),</span> <span class="n">grad_metric</span><span class="p">(</span><span class="n">point</span><span class="p">)]</span>
+
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">get_rotation</span><span class="p">(</span><span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="n">dimension</span><span class="p">)</span>
+
+    <span class="c"># Perform the L-BFGS method on the length functional</span>
+    <span class="n">geodesic</span><span class="p">,</span> <span class="n">f_min</span><span class="p">,</span> <span class="n">detail</span> <span class="o">=</span> <span class="n">fmin_l_bfgs_b</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">number_of_inner_points</span><span class="o">*</span><span class="p">(</span><span class="n">dimension</span><span class="o">-</span><span class="mi">1</span><span class="p">)),</span>
+                                            <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span>  <span class="n">number_of_inner_points</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span>
+                                                  <span class="n">dimension</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">metric_and_metric_grad</span><span class="p">,))</span>
+
+    <span class="c"># If something went wrong with the L-BFGS algorithm print an error message for the end user</span>
+    <span class="k">if</span> <span class="n">detail</span><span class="p">[</span><span class="s">&#39;warnflag&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&#39;BFGS Warning:&#39;</span> <span class="o">+</span> <span class="n">detail</span><span class="p">[</span><span class="s">&#39;task&#39;</span><span class="p">]</span>
+
+
+    <span class="c"># Convert the obtained geodesic from it&#39;s shift description to the full point description</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">generate_points</span><span class="p">(</span><span class="n">geodesic</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">number_of_inner_points</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">dimension</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                        <span class="p">(</span><span class="n">number_of_inner_points</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span>
+
+    <span class="c"># Compute the midpoint</span>
+    <span class="k">if</span> <span class="n">number_of_inner_points</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c"># If there is an odd number of inner points then return the middle element of the array</span>
+        <span class="n">midpoint</span> <span class="o">=</span> <span class="n">points</span><span class="p">[(</span><span class="n">number_of_inner_points</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># If there is an even number of inner points return the midpoint of the two middle points - this prevents</span>
+        <span class="c"># artificial movement of the curve due to the algorithm.</span>
+        <span class="n">midpoint</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">number_of_inner_points</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">points</span><span class="p">[(</span><span class="n">number_of_inner_points</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="c"># Return the node number and new midpoint</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">node_number</span><span class="p">,</span> <span class="n">midpoint</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="compute_geodesic"><a class="viewcode-back" href="../../curve_shorten.html#geodesic.curve_shorten.compute_geodesic">[docs]</a><span class="k">def</span> <span class="nf">compute_geodesic</span><span class="p">(</span><span class="n">curve_obj</span><span class="p">,</span> <span class="n">local_num_nodes</span><span class="p">,</span> <span class="n">tol</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">grad_metric</span><span class="p">,</span> <span class="n">processes</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This function creates a new task to compute a geodesic midpoint and submits it to the worker pool.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      curve_obj (curve) :</span>
+<span class="sd">          A GeometricMD curve object describing the initial trajectory between start and end configurations.</span>
+<span class="sd">      local_num_nodes (int) :</span>
+<span class="sd">          The number of points to use when computing the local geodesics.</span>
+<span class="sd">      tol (float) :</span>
+<span class="sd">          The tolerance by which if the total curve movement falls below this number then the Birkhoff method stops.</span>
+<span class="sd">      metric (func) :</span>
+<span class="sd">          A Python function taking a single vector argument the same dimension as the start point.</span>
+<span class="sd">      processes (optional, int) :</span>
+<span class="sd">          The number of processes to parallelise the task over.</span>
+
+<span class="sd">   &quot;&quot;&quot;</span>
+
+    <span class="c"># Determine the dimension of the Hamiltonian system</span>
+    <span class="n">dimension</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">curve_obj</span><span class="o">.</span><span class="n">get_points</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c"># If the user intends to use the algorithm on one core then...</span>
+    <span class="k">if</span> <span class="n">processes</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+
+        <span class="c"># Main loop of the Birkhoff algorithm, continues until curve.movement &lt; tol then breaks out</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+
+            <span class="c"># Iterating over each node in the trajectory find a new position based on the geodesic midpoint</span>
+            <span class="c"># joining it&#39;s neighbours</span>
+            <span class="k">for</span> <span class="n">node_number</span> <span class="ow">in</span> <span class="n">curve_obj</span><span class="p">:</span>
+                <span class="n">curve_obj</span><span class="o">.</span><span class="n">set_node_position</span><span class="p">(</span><span class="n">node_number</span><span class="p">,</span> <span class="n">find_geodesic_midpoint</span><span class="p">(</span><span class="n">curve_obj</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">node_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                                                                                 <span class="n">curve_obj</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">node_number</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                                                                                 <span class="n">local_num_nodes</span><span class="p">,</span>
+                                                                                 <span class="n">dimension</span><span class="p">,</span>
+                                                                                 <span class="n">node_number</span><span class="p">,</span>
+                                                                                 <span class="n">metric</span><span class="p">,</span>
+                                                                                 <span class="n">grad_metric</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="c"># If the movement of the curve is below the tol threshold then exit the main loop</span>
+            <span class="k">if</span> <span class="n">curve_obj</span><span class="o">.</span><span class="n">movement</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="c"># Indicate that the next iteration is to be completed</span>
+            <span class="n">curve_obj</span><span class="o">.</span><span class="n">set_node_movable</span><span class="p">()</span>
+
+    <span class="c"># Otherwise the user has indicated they would like to perform a parallel computation...</span>
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="c"># Create a callback function that updates the node position once it is calculated</span>
+        <span class="k">def</span> <span class="nf">update_curve</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+            <span class="n">curve_obj</span><span class="o">.</span><span class="n">set_node_position</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c"># Create a pool of worker processes to work in parallel</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">processes</span><span class="p">)</span>
+
+        <span class="c"># Main loop of the Birkhoff algorithm, continues until curve.movement &lt; tol then breaks out</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+
+            <span class="c"># Iterating over each node in the trajectory create a task to find a new position based on the</span>
+            <span class="c"># geodesic midpoint joining it&#39;s neighbours. Add this task to the pool queue.</span>
+            <span class="k">for</span> <span class="n">node_number</span> <span class="ow">in</span> <span class="n">curve_obj</span><span class="p">:</span>
+                <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">find_geodesic_midpoint</span><span class="p">,</span>
+                                 <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">curve_obj</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">node_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">curve_obj</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">node_number</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span>
+                                       <span class="n">local_num_nodes</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">node_number</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">grad_metric</span><span class="p">),</span>
+                                 <span class="n">callback</span><span class="o">=</span><span class="n">update_curve</span><span class="p">)</span>
+
+            <span class="c"># If all the nodes in the trajectory have been moved...</span>
+            <span class="k">if</span> <span class="n">curve_obj</span><span class="o">.</span><span class="n">all_nodes_moved</span><span class="p">():</span>
+
+                <span class="c"># If the movement of the curve is below the tol threshold then exit the main loop</span>
+                <span class="k">if</span> <span class="n">curve_obj</span><span class="o">.</span><span class="n">movement</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+                <span class="c"># Indicate that the next iteration is to be completed</span>
+                <span class="n">curve_obj</span><span class="o">.</span><span class="n">set_node_movable</span><span class="p">()</span>
+
+        <span class="c"># Once the algorithm has executed close the pool</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2015, Daniel Sutton.<br/>
+      Last updated on Jul 17, 2015.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

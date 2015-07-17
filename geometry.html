@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2a',
+        VERSION:     '1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -51,7 +51,7 @@
         </button>
         <a class="navbar-brand" href="index.html">
           scikit-geodesic</a>
-        <span class="navbar-text navbar-version pull-left"><b>1.2</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>1.1</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -85,10 +85,7 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">Geometry Module</a><ul>
-<li><a class="reference internal" href="#references">References</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#">Geometry Module</a></li>
 </ul>
 </ul>
 </li>
@@ -136,104 +133,87 @@
   <div class="row">
     <div class="col-md-12">
       
-  <div class="section" id="module-geometricmd.geometry">
-<span id="geometry-module"></span><h1>Geometry Module<a class="headerlink" href="#module-geometricmd.geometry" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-geodesic.geometry">
+<span id="geometry-module"></span><h1>Geometry Module<a class="headerlink" href="#module-geodesic.geometry" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="geometricmd.geometry.Curve">
-<em class="property">class </em><code class="descclassname">geometricmd.geometry.</code><code class="descname">Curve</code><span class="sig-paren">(</span><em>start_point</em>, <em>end_point</em>, <em>number_of_nodes</em>, <em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/geometry.html#Curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.geometry.Curve" title="Permalink to this definition">¶</a></dt>
-<dd><p>The purpose of this object is to provide a Curve object that has similar behaviour to that described in <a class="reference internal" href="#sutton2013" id="id1">[Sutton2013]</a>.</p>
+<dt id="geodesic.geometry.Curve">
+<em class="property">class </em><code class="descclassname">geodesic.geometry.</code><code class="descname">Curve</code><span class="sig-paren">(</span><em>start_point</em>, <em>end_point</em>, <em>number_of_nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/geometry.html#Curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.geometry.Curve" title="Permalink to this definition">¶</a></dt>
+<dd><p>The purpose of this object is to provide a Curve object with a custom iterator to perform the Birkhoff algorithm.</p>
 <dl class="attribute">
-<dt id="geometricmd.geometry.Curve.start_point">
-<code class="descname">start_point</code><a class="headerlink" href="#geometricmd.geometry.Curve.start_point" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.start_point">
+<code class="descname">start_point</code><a class="headerlink" href="#geodesic.geometry.Curve.start_point" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.array</em></p>
 <p>A NumPy array describing the first point in the curve.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="geometricmd.geometry.Curve.end_point">
-<code class="descname">end_point</code><a class="headerlink" href="#geometricmd.geometry.Curve.end_point" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.end_point">
+<code class="descname">end_point</code><a class="headerlink" href="#geodesic.geometry.Curve.end_point" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.array</em></p>
 <p>A NumPy array describing the last point in the curve.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="geometricmd.geometry.Curve.number_of_nodes">
-<code class="descname">number_of_nodes</code><a class="headerlink" href="#geometricmd.geometry.Curve.number_of_nodes" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.number_of_nodes">
+<code class="descname">number_of_nodes</code><a class="headerlink" href="#geodesic.geometry.Curve.number_of_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em></p>
 <p>The total number of nodes that the curve is to consist of, including the start and end points.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="geometricmd.geometry.Curve.energy">
-<code class="descname">energy</code><a class="headerlink" href="#geometricmd.geometry.Curve.energy" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>float</em></p>
-<p>The total Hamiltonian energy to be used in the simulation.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="geometricmd.geometry.Curve.tangent">
-<code class="descname">tangent</code><a class="headerlink" href="#geometricmd.geometry.Curve.tangent" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.tangent">
+<code class="descname">tangent</code><a class="headerlink" href="#geodesic.geometry.Curve.tangent" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.array</em></p>
-<p>The tangent of the straight line segment joining the start_point to the end_point, rescaled according to <a class="reference internal" href="#sutton2013" id="id2">[Sutton2013]</a>.</p>
+<p>The tangent of the straight line segment joining the start_point to the end_point.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="geometricmd.geometry.Curve.points">
-<code class="descname">points</code><a class="headerlink" href="#geometricmd.geometry.Curve.points" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.points">
+<code class="descname">points</code><a class="headerlink" href="#geodesic.geometry.Curve.points" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.array</em></p>
 <p>An NumPy array containing all the points of the curve.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="geometricmd.geometry.Curve.default_initial_state">
-<code class="descname">default_initial_state</code><a class="headerlink" href="#geometricmd.geometry.Curve.default_initial_state" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.default_initial_state">
+<code class="descname">default_initial_state</code><a class="headerlink" href="#geodesic.geometry.Curve.default_initial_state" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.array</em></p>
 <p>A NumPy array consisting of flags that indicate which nodes are movable initially.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="geometricmd.geometry.Curve.movement">
-<code class="descname">movement</code><a class="headerlink" href="#geometricmd.geometry.Curve.movement" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.movement">
+<code class="descname">movement</code><a class="headerlink" href="#geodesic.geometry.Curve.movement" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>float</em></p>
-<p>A variable which records the total movement of the curve as calculated in <a class="reference internal" href="#sutton2013" id="id3">[Sutton2013]</a>.</p>
+<p>A variable which records the average movement of the nodes.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="geometricmd.geometry.Curve.nodes_moved">
-<code class="descname">nodes_moved</code><a class="headerlink" href="#geometricmd.geometry.Curve.nodes_moved" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.nodes_moved">
+<code class="descname">nodes_moved</code><a class="headerlink" href="#geodesic.geometry.Curve.nodes_moved" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.array</em></p>
-<p>A binary NumPy array indicating whether a node has been moved. Used to determine when all the nodes in the curve have been moved.</p>
+<p>A binary NumPy array indicating whether a node has been moved. Used to determine when all the nodes in the
+curve have been moved.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="geometricmd.geometry.Curve.node_movable">
-<code class="descname">node_movable</code><a class="headerlink" href="#geometricmd.geometry.Curve.node_movable" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.node_movable">
+<code class="descname">node_movable</code><a class="headerlink" href="#geodesic.geometry.Curve.node_movable" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>numpy.array</em></p>
 <p>A binary NumPy array indicating whether a node is movable.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="geometricmd.geometry.Curve.number_of_distinct_nodes_moved">
-<code class="descname">number_of_distinct_nodes_moved</code><a class="headerlink" href="#geometricmd.geometry.Curve.number_of_distinct_nodes_moved" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.number_of_distinct_nodes_moved">
+<code class="descname">number_of_distinct_nodes_moved</code><a class="headerlink" href="#geodesic.geometry.Curve.number_of_distinct_nodes_moved" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>int</em></p>
 <p>A counter recording the total number of nodes that have moved.</p>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="geometricmd.geometry.Curve.configuration">
-<code class="descname">configuration</code><a class="headerlink" href="#geometricmd.geometry.Curve.configuration" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>dict</em></p>
-<p>A dictionary containing the information from the configuration file.</p>
-</dd></dl>
-
 <dl class="method">
-<dt id="geometricmd.geometry.Curve.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>start_point</em>, <em>end_point</em>, <em>number_of_nodes</em>, <em>energy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/geometry.html#Curve.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.geometry.Curve.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>start_point</em>, <em>end_point</em>, <em>number_of_nodes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/geometry.html#Curve.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.geometry.Curve.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>The constructor for the Curve class.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This class is intended to be used by the SimulationServer module.</p>
-</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -242,7 +222,6 @@
 <li><strong>start_point</strong> (<em>ase.atoms</em>) &#8211; An ASE atoms object describing the initial state. A calculator needs to be set on this object.</li>
 <li><strong>end_point</strong> (<em>ase.atoms</em>) &#8211; An ASE atoms object describing the final state.</li>
 <li><strong>number_of_nodes</strong> (<em>int</em>) &#8211; The number of nodes that the curve is to consist of, including the start and end points.</li>
-<li><strong>energy</strong> (<em>float</em>) &#8211; The total Hamiltonian energy to be used in the simulation.</li>
 </ul>
 </td>
 </tr>
@@ -251,8 +230,8 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="geometricmd.geometry.Curve.__iter__">
-<code class="descname">__iter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/geometry.html#Curve.__iter__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.geometry.Curve.__iter__" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.__iter__">
+<code class="descname">__iter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/geometry.html#Curve.__iter__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.geometry.Curve.__iter__" title="Permalink to this definition">¶</a></dt>
 <dd><p>This special method ensures a curve object is iterable.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -265,8 +244,8 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="geometricmd.geometry.Curve.all_nodes_moved">
-<code class="descname">all_nodes_moved</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/geometry.html#Curve.all_nodes_moved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.geometry.Curve.all_nodes_moved" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.all_nodes_moved">
+<code class="descname">all_nodes_moved</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/geometry.html#Curve.all_nodes_moved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.geometry.Curve.all_nodes_moved" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method determines whether every node in the global curve has been tested for length reduction.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -281,8 +260,8 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="geometricmd.geometry.Curve.get_points">
-<code class="descname">get_points</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/geometry.html#Curve.get_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.geometry.Curve.get_points" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.get_points">
+<code class="descname">get_points</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/geometry.html#Curve.get_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.geometry.Curve.get_points" title="Permalink to this definition">¶</a></dt>
 <dd><p>Accessor method for the points attribute.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -297,11 +276,11 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="geometricmd.geometry.Curve.next">
-<code class="descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/geometry.html#Curve.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.geometry.Curve.next" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.next">
+<code class="descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/geometry.html#Curve.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.geometry.Curve.next" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Determine next movable node, given existing information about previously distributed nodes. Used to ensure</dt>
-<dd>the curve object is Python iterable..</dd>
+<dd>the curve object is Python iterable.</dd>
 </dl>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -316,14 +295,15 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="geometricmd.geometry.Curve.set_node_movable">
-<code class="descname">set_node_movable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/geometry.html#Curve.set_node_movable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.geometry.Curve.set_node_movable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Resets all of the flags in the curve to indicate that the current iteration of the Birkhoff algorithm is over.</p>
+<dt id="geodesic.geometry.Curve.set_node_movable">
+<code class="descname">set_node_movable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/geometry.html#Curve.set_node_movable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.geometry.Curve.set_node_movable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets all of the flags in the curve to indicate that the current iteration of the Birkhoff algorithm is
+over.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="geometricmd.geometry.Curve.set_node_position">
-<code class="descname">set_node_position</code><span class="sig-paren">(</span><em>node_number</em>, <em>new_position</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/geometry.html#Curve.set_node_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.geometry.Curve.set_node_position" title="Permalink to this definition">¶</a></dt>
+<dt id="geodesic.geometry.Curve.set_node_position">
+<code class="descname">set_node_position</code><span class="sig-paren">(</span><em>node_number</em>, <em>new_position</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geodesic/geometry.html#Curve.set_node_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geodesic.geometry.Curve.set_node_position" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the position of the node at node_number to new_position. This processes the logic for releasing
 neighbouring nodes for further computation.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -342,58 +322,6 @@ neighbouring nodes for further computation.</p>
 
 </dd></dl>
 
-<dl class="function">
-<dt id="geometricmd.geometry.convert_atoms_to_vector">
-<code class="descclassname">geometricmd.geometry.</code><code class="descname">convert_atoms_to_vector</code><span class="sig-paren">(</span><em>atoms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/geometry.html#convert_atoms_to_vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.geometry.convert_atoms_to_vector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts an Atomistic Simulation Environment atoms object into a vector which can be used with the curve
-shortening algorithm.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>atoms</strong> (<em>ase.atoms</em>) &#8211; The ASE atoms object whose position is to be converted to a vector.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A vector of atomistic positions.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">numpy.array</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="geometricmd.geometry.convert_vector_to_atoms">
-<code class="descclassname">geometricmd.geometry.</code><code class="descname">convert_vector_to_atoms</code><span class="sig-paren">(</span><em>vector</em>, <em>dimension=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometricmd/geometry.html#convert_vector_to_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometricmd.geometry.convert_vector_to_atoms" title="Permalink to this definition">¶</a></dt>
-<dd><p>The inverse of convert_atoms_to_vector.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>vector</strong> (<em>numpy.array</em>) &#8211; The vector containing the position of the atoms to be converted.</li>
-<li><strong>dimension</strong> (<em>optional int</em>) &#8211; The dimension of the space in which the simulation is taking place. The default value is 3.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An ASE atoms object friendly NumPy array containing the atomistic positions.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.array</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<div class="section" id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<table class="docutils citation" frame="void" id="sutton2013" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[Sutton2013]</td><td><em>(<a class="fn-backref" href="#id1">1</a>, <a class="fn-backref" href="#id2">2</a>, <a class="fn-backref" href="#id3">3</a>)</em> Microscopic Hamiltonian Systems and their Effective Description, Daniel C. Sutton, 2013.</td></tr>
-</tbody>
-</table>
-</div>
 </div>
 
 
@@ -409,7 +337,7 @@ shortening algorithm.</p>
     </p>
     <p>
         &copy; Copyright 2015, Daniel Sutton.<br/>
-      Last updated on Jul 08, 2015.<br/>
+      Last updated on Jul 17, 2015.<br/>
     </p>
   </div>
 </footer>

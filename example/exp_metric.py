@@ -32,13 +32,17 @@ n[0] = 0
 def metric_coefficient(x):
     return exp(-np.inner(n,x))
 
+def metric_coefficient_gradient(x):
+    return -n * exp(-np.inner(n,x))
+
 print 'Starting Example Calculation...'
 
 # Create curve object for calculation
 curve = Curve(start_point, end_point, number_of_global_nodes)
 
 # Apply curve shortening procedure to minimise length
-compute_geodesic(curve, number_of_local_nodes, maximum_average_node_movement, metric_coefficient, number_of_cpu)
+compute_geodesic(curve, number_of_local_nodes, maximum_average_node_movement, metric_coefficient,
+                 metric_coefficient_gradient, number_of_cpu)
 
 # Print shortened curve points
 print curve.get_points()

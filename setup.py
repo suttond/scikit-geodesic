@@ -2,9 +2,9 @@ from distutils.core import setup
 
 setup(
     name='scikit-geodesic',
-    version='1.0',
+    version='1.1',
     packages=['geodesic'],
-    url='https://suttond.github.io/scikit-geodesic',
+    url='http://suttond.github.io/scikit-geodesic',
     license='LGPL 3.0',
     author='Daniel C. Sutton',
     author_email='sutton.c.daniel@gmail.com',

@@ -4,31 +4,42 @@ import numpy as np
 class Curve:
     """
 
-    The purpose of this object is to provide a Curve object that has similar behaviour to that described in [Sutton2013]_.
+    The purpose of this object is to provide a Curve object with a custom iterator to perform the Birkhoff algorithm.
 
     Attributes:
-      start_point (numpy.array): A NumPy array describing the first point in the curve.
-      end_point (numpy.array): A NumPy array describing the last point in the curve.
-      number_of_nodes (int): The total number of nodes that the curve is to consist of, including the start and end points.
-      tangent (numpy.array): The tangent of the straight line segment joining the start_point to the end_point, rescaled according to [Sutton2013]_.
-      points (numpy.array): An NumPy array containing all the points of the curve.
-      default_initial_state (numpy.array): A NumPy array consisting of flags that indicate which nodes are movable initially.
-      movement (float): A variable which records the average movement of the nodes.
-      nodes_moved (numpy.array): A binary NumPy array indicating whether a node has been moved. Used to determine when all the nodes in the curve have been moved.
-      node_movable (numpy.array): A binary NumPy array indicating whether a node is movable.
-      number_of_distinct_nodes_moved (int): A counter recording the total number of nodes that have moved.
+      start_point (numpy.array) :
+          A NumPy array describing the first point in the curve.
+      end_point (numpy.array) :
+          A NumPy array describing the last point in the curve.
+      number_of_nodes (int) :
+          The total number of nodes that the curve is to consist of, including the start and end points.
+      tangent (numpy.array) :
+          The tangent of the straight line segment joining the start_point to the end_point.
+      points (numpy.array) :
+          An NumPy array containing all the points of the curve.
+      default_initial_state (numpy.array) :
+          A NumPy array consisting of flags that indicate which nodes are movable initially.
+      movement (float) :
+          A variable which records the average movement of the nodes.
+      nodes_moved (numpy.array) :
+          A binary NumPy array indicating whether a node has been moved. Used to determine when all the nodes in the
+          curve have been moved.
+      node_movable (numpy.array) :
+          A binary NumPy array indicating whether a node is movable.
+      number_of_distinct_nodes_moved (int) :
+          A counter recording the total number of nodes that have moved.
 
     """
     def __init__(self, start_point, end_point, number_of_nodes):
         """The constructor for the Curve class.
 
-        Note:
-          This class is intended to be used by the SimulationServer module.
-
         Args:
-          start_point (ase.atoms): An ASE atoms object describing the initial state. A calculator needs to be set on this object.
-          end_point (ase.atoms): An ASE atoms object describing the final state.
-          number_of_nodes (int): The number of nodes that the curve is to consist of, including the start and end points.
+          start_point (ase.atoms) :
+              An ASE atoms object describing the initial state. A calculator needs to be set on this object.
+          end_point (ase.atoms) :
+              An ASE atoms object describing the final state.
+          number_of_nodes (int) :
+              The number of nodes that the curve is to consist of, including the start and end points.
 
         """
 
@@ -60,7 +71,8 @@ class Curve:
 
 
     def set_node_movable(self):
-        """ Resets all of the flags in the curve to indicate that the current iteration of the Birkhoff algorithm is over.
+        """ Resets all of the flags in the curve to indicate that the current iteration of the Birkhoff algorithm is
+        over.
 
         """
 
@@ -81,8 +93,10 @@ class Curve:
         neighbouring nodes for further computation.
 
         Arguments:
-            node_number (int): The node number of the node whose position is to be updated.
-            new_position (numpy.array): The new position of the node.
+            node_number (int) :
+                The node number of the node whose position is to be updated.
+            new_position (numpy.array) :
+                The new position of the node.
 
         """
 
@@ -111,10 +125,11 @@ class Curve:
 
     def next(self):
         """ Determine next movable node, given existing information about previously distributed nodes. Used to ensure
-            the curve object is Python iterable..
+            the curve object is Python iterable.
 
         Returns:
-            int: The node number of the next movable node. If no such node exists then it returns None.
+            int :
+                The node number of the next movable node. If no such node exists then it returns None.
 
         """
 
@@ -154,7 +169,8 @@ class Curve:
         """ Accessor method for the points attribute.
 
         Returns:
-            numpy.array: An array containing all of the points of the curve.
+            numpy.array :
+                An array containing all of the points of the curve.
 
         """
         return self.points
@@ -163,7 +179,8 @@ class Curve:
         """ This method determines whether every node in the global curve has been tested for length reduction.
 
         Returns:
-          bool: True if all of the nodes have been tested, False otherwise.
+          bool :
+              True if all of the nodes have been tested, False otherwise.
 
         """
         if self.number_of_distinct_nodes_moved == 2:
